@@ -1,12 +1,11 @@
 import cv2
 import numpy as np
 
-# frame for the screen
-frameHeight = 600
-frameWidth = 900
-# capturing Video from Webcam
-cap = cv2.VideoCapture(0)
-cap.set(3, frameWidth)
-cap.set(4, frameHeight)
+all_camera_idx_available = []
 
-cap.set(10,150)
+for camera_idx in range(10):
+    cap = cv2.VideoCapture(camera_idx)
+    if cap.isOpened():
+        print(f'Camera index available: {camera_idx}')
+        all_camera_idx_available.append(camera_idx)
+        cap.release()
