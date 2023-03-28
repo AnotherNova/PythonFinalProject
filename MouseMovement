@@ -1,0 +1,19 @@
+// a program used to create mouse input
+import pyautogui
+from time import sleep
+#failsafe time
+pyautogui.PAUSE = 1
+# pyautogui.failSafeCheck= True
+
+class Mouse:
+
+    def __init__(self):
+        pass
+
+    def dragRight(self):
+        pyautogui.dragRel(10,10,duration=0.5)
+
+sleep(5)
+m1 = Mouse()
+for i in range(5):
+    m1.dragRight()
