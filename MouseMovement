@@ -12,8 +12,16 @@ class Mouse:
 
     def dragRight(self):
         pyautogui.dragRel(10,10,duration=0.5)
+    def dragLeft(self):
+        pyautogui.dragRel(-10,-10,duration=0.5)
+    def dragup(self):
+        pyautogui.dragRel(0,-10,duration=0.5)
 
 sleep(5)
 m1 = Mouse()
 for i in range(5):
     m1.dragRight()
+for i in range(5):
+    m1.dragLeft()
+for i in range(5):
+    m1.dragup()
