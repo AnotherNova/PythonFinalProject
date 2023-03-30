@@ -1,10 +1,15 @@
 import cv2
 import numpy as np
+import pyautogui
+
 # displays webcam using DirectShow API
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 # pre-trained face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+# failsafe
+pyautogui.FAILSAFE = False
+
 
 while True:
     ret, frame = cap.read()
@@ -14,6 +19,8 @@ while True:
     faces = face_cascade.detectMultiScale(gray, 1.07, 7)
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
+        cx,cy = x//2, y//2
+        pyautogui.moveTo(cx,cy)
         roi_gray = gray[y:y+w, x:x+w]
         roi_color = frame[y:y+h, x:x+w]
         eyes = eye_cascade.detectMultiScale(roi_gray, 1.07, 4)
@@ -27,3 +34,6 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+#write and read to serial port between programs.
+#udp broadcast?
