@@ -20,7 +20,7 @@ while True:
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
         # mouse control
-        cx,cy = x//2, y//2
+        cx,cy = (x//2)*5, (y//2)*5
         pyautogui.moveTo(cx,cy)
         #######################
         roi_gray = gray[y:y+w, x:x+w]
