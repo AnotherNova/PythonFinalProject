@@ -3,7 +3,8 @@ import numpy as np
 import pyautogui
 
 #failsafe bypass
-pyautogui.FAILSAFE = True
+pyautogui.FAILSAFE = False
+#does all the frame setup
 class Camera:
     def __init__(self):
         self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # directshow api
