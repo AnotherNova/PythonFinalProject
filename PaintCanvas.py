@@ -5,14 +5,19 @@
 #Created referencing nikhilkumarsingh's paint.py on GitHub
 from tkinter import *
 from tkinter import colorchooser
+import EyeTrack
+import threading
+import queue
+from sys import exit
 
 #Create the main GUI (window, bg color, size)
 class Background(Canvas):
     DEFAULT_COLOR = "Black"
-    def __init__(self, master):
-        Canvas.__init__(self, master)
+    def __init__(self, master, q):
+        super(Background, self).__init__(master)
         self.c = Canvas(self, width = 900, height = 600, bg = "white")
         self.c.pack(side = "top", fill = "both", expand = True)
+        self.q = q
 
         #Button for choosing a color
         self.color_button = Button(master, text = "Colors", command = self.choose_color)
@@ -50,15 +55,16 @@ class Background(Canvas):
 
     #Function for creating a line
     def paint(self, event):
-        if self.old_x and self.old_y:
-            self.c.create_line(self.old_x, self.old_y, event.x, event.y, width = 7, fill = self.color, capstyle = ROUND, smooth = TRUE, splinesteps = 36)
-        self.old_x = event.x
-        self.old_y = event.y
+        # if something is in the queue, get this data and pass it
+        if q.qsize() > 0:
+            data = q.get()
+            if self.old_x and self.old_y:
+                self.c.create_line(self.old_x, self.old_y, event.x, event.y, width = 7, fill = self.color, capstyle = ROUND, smooth = TRUE, splinesteps = 36)
+            self.old_x = event.x
+            self.old_y = event.y
 
     def reset(self, event):
         self.old_x, self.old_y = None, None
-
-
 
 #Run the code when the file is run as a script and include GUI setup
 if __name__ == "__main__":
@@ -66,6 +72,15 @@ if __name__ == "__main__":
     master.title("iPaint")
     message = Label(master, text = "Welcome to iPaint!")
     message.pack(side = BOTTOM)
-    view = Background(master)
+    # create a thread object
+    q = queue.Queue()
+    # use the data from the eyetrack
+    background_thr = threading.Thread(target = EyeTrack.main, args = (q,))
+    view = Background(master, q)
     view.pack(side = "top", fill = "both", expand = True)
+    #EyeTrack.main()
+    #EyeTrack.cv2.destroyAllWindows()
+    # start the thread
+    background_thr.start()
     master.mainloop()
+    exit()
