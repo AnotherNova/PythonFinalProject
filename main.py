@@ -25,6 +25,7 @@ def main(q):
     pyautogui.moveTo((1920/2),(1080/2))
     while True:
         frame = cam.get_frame()
+        frame = cv2.flip(frame,1)
         # converts img to grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         # detects faces
