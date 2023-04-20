@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 import pyautogui
+
 #failsafe bypass
-pyautogui.FAILSAFE = False
+pyautogui.FAILSAFE = True
 class Camera:
     def __init__(self):
         self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # directshow api
@@ -18,7 +19,7 @@ class Camera:
     def release_camera(self):
         self.cap.release()
         cv2.destroyAllWindows()
-def main():
+def main(q):
     cam = Camera()
     # centers mouse
     pyautogui.moveTo((1920/2),(1080/2))
@@ -28,6 +29,7 @@ def main():
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         # detects faces
         faces = cam.face_cascade.detectMultiScale(gray, 1.07, 7)
+        cx, cy = 0, 0
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
             #centers to camera
@@ -38,6 +40,9 @@ def main():
             eyes = cam.eye_cascade.detectMultiScale(roi_gray, 1.07, 4)
             for (ex, ey, ew, eh) in eyes:
                 cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 5)
+
+        # identify thread data
+        q.put((cx, cy))
 
         cv2.imshow('CameraWindow', frame)
 
