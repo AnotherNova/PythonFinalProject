@@ -3,7 +3,7 @@
 #Date: 4/20/23
 ###############################################################
 #Created referencing nikhilkumarsingh's paint.py on GitHub
-from tkinteqr import *
+from tkinter import *
 from tkinter import colorchooser
 import EyeTrack
 import threading
