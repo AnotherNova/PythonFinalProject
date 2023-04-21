@@ -1,91 +1,71 @@
-###############################################################
-#Description: Simulates a paint canvas
-#Date: 4/20/23
-###############################################################
-#Created referencing nikhilkumarsingh's paint.py on GitHub
-from tkinter import *
-from tkinter import colorchooser
-import EyeTrack
-import threading
-import queue
-from sys import exit
+import cv2
+import numpy as np
+import pyautogui
+#from PIL import ImageEnhance 
 
-#Create the main GUI (window, bg color, size)
-class Background(Canvas):
-    DEFAULT_COLOR = "Black"
-    def __init__(self, master, q):
-        super(Background, self).__init__(master)
-        self.c = Canvas(self, width = 900, height = 600, bg = "white")
-        self.c.pack(side = "top", fill = "both", expand = True)
-        #Define q
-        self.q = q
+accuracy = 1.04
+#failsafe bypass
+pyautogui.FAILSAFE = False
+#does all the frame setup
+class Camera:
+    def __init__(self):
+        self.cap = cv2.VideoCapture(1, cv2.CAP_DSHOW) # directshow api
+        cv2.namedWindow("CameraWindow",cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty("CameraWindow",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        self.eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+    def get_frame(self):
+        s, img = self.cap.read()
+        if s:
+            pass
+        return img
+    def release_camera(self):
+        self.cap.release()
+        cv2.destroyAllWindows()
+    # def enhanceDat(self):
+    #     sharpen = self.sharpen
+    #     enhancer = self.enhancer
+    #     self.enhancer = ImageEnhance.Sharpness(main.frame)
+    #     for i in range(8):
+    #         factor = i / 4.0
+    #         enhancer.enhance(factor).show(f"Sharpness {factor:f}")
+    #     self.sharpen = ImageEnhance.Sharpness(main.frame)
+    #     for i in range(2.0):
+    #         factor = i / 1.0
+    #         sharpen
+def main(q):
+    cam = Camera()
+    # centers mouse
+    pyautogui.moveTo((1920/2),(1080/2))
+    while True:
+        frame = cam.get_frame()
+        frame = cv2.flip(frame,1)
+        # converts img to grayscale
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # detects faces
+        faces = cam.face_cascade.detectMultiScale(gray, accuracy, 7)
+        cx, cy = 0, 0
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
+            #centers to camera
+            cx, cy = (x+w//2)*3, (y+h//2)*1.75
+            pyautogui.moveTo(cx,cy)
+            roi_gray = gray[y:y+w, x:x+w]
+            roi_color = frame[y:y+h, x:x+w]
+            eyes = cam.eye_cascade.detectMultiScale(roi_gray, 1.07, 4)
+            for (ex, ey, ew, eh) in eyes:
+                cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 5)
 
-        #Button for choosing a color
-        self.color_button = Button(master, text = "Colors", command = self.choose_color)
-        self.color_button.pack(side = "top")
+        # identify thread data
+        q.put((cx, cy))
 
-        #Button for erasing
-        self.eraser_button = Button(master, text = "Eraser", command = self.erase)
-        self.eraser_button.pack(side = "left")
+        cv2.imshow('CameraWindow', frame)
 
-        #Button for clearing all
-        self.clear_button = Button(master, text = "Clear", command = self.clear)
-        self.clear_button.pack(side = "right")
+        if cv2.waitKey(1) == ord('q'):
+            break
 
-        self.setup()
-
-    #Clean up before starting, have button detection, and a default color
-    def setup(self):
-        self.old_x = None
-        self.old_y = None
-        self.color = self.DEFAULT_COLOR
-        #When the user presses the left mouse button and moves across the screen, call the paint function
-        self.c.bind("<B1-Motion>", self.paint)
-        #When the user releases the button, stop painting
-        self.c.bind("<ButtonRelease-1>", self.reset)
-
-    #Function for erasing
-    def erase(self):
-        self.color = "white"
-
-    #Function for clearing the screen
-    def clear(self):
-       self.c.delete('all')
-
-    #Function for choosing a color using a color wheel
-    def choose_color(self):
-        self.color = colorchooser.askcolor(color = self.color)[1]
-
-    #Function for creating a line
-    def paint(self, event):
-        #If something is in the queue
-        if q.qsize() > 0:
-            #Retrieve and remove it from the queue and process the if statement
-            data = q.get()
-            if self.old_x and self.old_y:
-                self.c.create_line(self.old_x, self.old_y, event.x, event.y, width = 7, fill = self.color, capstyle = ROUND, smooth = TRUE, splinesteps = 36)
-            self.old_x = event.x
-            self.old_y = event.y
-
-    #Stop painting
-    def reset(self, event):
-        self.old_x, self.old_y = None, None
-
-#Run the code when the file is run as a script and include GUI setup
-if __name__ == "__main__":
-    master = Tk()
-    master.title("FacePaint")
-    message = Label(master, text = "Welcome to FacePaint!")
-    message.pack(side = BOTTOM)
-    #Create a new instance of the Queue class from the queue module
-    q = queue.Queue()
-    #Identify the target data as cx and xy in EyeTrack
-    background_thr = threading.Thread(target = EyeTrack.main, args = (q,))
-    view = Background(master, q)
-    view.pack(side = "top", fill = "both", expand = True)
-    #EyeTrack.main()
-    #EyeTrack.cv2.destroyAllWindows()
-    #Start the thread
-    background_thr.start()
-    master.mainloop()
-    exit()
+    cam.release_camera()
+if __name__ == '__main__':
+    main()
+    cv2.destroyAllWindows()
+    
