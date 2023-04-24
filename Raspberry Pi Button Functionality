@@ -1,0 +1,35 @@
+import RPi.GPIO as GPIO
+import time
+#import socket
+#import struct
+
+PIN = 24
+#HOST = "IP ADDRESS OF COMPUTER"
+#PORT = "PORT TO USE"
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+
+start_time = time.time()
+while True:
+    state = GPIO.input(PIN)
+    duration = time.time() - start_time
+    if state == GPIO.LOW:
+        print("Not P/H")
+        switch_state = 0
+    
+    elif state == GPIO.HIGH:
+        if duration <= 1:
+            print("Held")
+            switch_state = 2
+        else:
+            print("Pressed")
+            switch_state = 1
+            start_time = time.time()
+        
+    message = struct.pack("i", switch_state)
+    s.sendto(message, (HOST, PORT))  
+    time.sleep(0.1)
