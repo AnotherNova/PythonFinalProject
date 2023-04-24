@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 #import socket
-#import struct
+#from struct import pack
 
 PIN = 24
 #HOST = "IP ADDRESS OF COMPUTER"
