@@ -30,6 +30,6 @@ while True:
             switch_state = 1
             start_time = time.time()
         
-    message = struct.pack("i", switch_state)
+    message = pack("i", switch_state)
     s.sendto(message, (HOST, PORT))  
     time.sleep(0.1)
