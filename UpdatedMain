@@ -52,7 +52,7 @@ def main(q):
             pyautogui.moveTo(cx,cy)
             roi_gray = gray[y:y+w, x:x+w]
             roi_color = frame[y:y+h, x:x+w]
-            eyes = cam.eye_cascade.detectMultiScale(roi_gray, 1.07, 4)
+            eyes = cam.eye_cascade.detectMultiScale(roi_gray, accuracy, 4)
             for (ex, ey, ew, eh) in eyes:
                 cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 5)
 
