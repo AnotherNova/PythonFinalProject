@@ -1,0 +1,14 @@
+import socket
+from struct import unpack
+
+#HOST = "IP address of the raspi"
+#PORT = "Port to be used"
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+s.bind((HOST, PORT))
+
+while True:
+    message, address = s.recvfrom(4096)
+    pin_state = unpack("i", message)
+    print("{}".format(pin_state))
