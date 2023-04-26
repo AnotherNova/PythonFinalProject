@@ -4,8 +4,8 @@ import socket
 from struct import pack
 
 PIN = 24
-HOST = "IP ADDRESS OF COMPUTER"
-PORT = "PORT TO USE"
+HOST = '192.168.8.'
+PORT = 1600
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
