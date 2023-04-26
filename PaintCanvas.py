@@ -19,7 +19,6 @@ class Background(Canvas):
         self.c.pack(side = "top", fill = "both", expand = True)
         #Define q
         self.q = q
-
         #Button for choosing a color
         self.color_button = Button(master, text = "Colors", command = self.choose_color)
         self.color_button.pack(side = "top")
@@ -56,7 +55,7 @@ class Background(Canvas):
     def choose_color(self):
         self.color = colorchooser.askcolor(color = self.color)[1]
 
-    #Function for creating a line
+    #Function for cqreating a line
     def paint(self, event):
         #If something is in the queue
         if q.qsize() > 0:
