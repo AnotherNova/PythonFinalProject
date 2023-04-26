@@ -1,8 +1,8 @@
 import socket
 from struct import unpack
 
-#HOST = "IP address of the raspi"
-#PORT = "Port to be used"
+HOST = socket.gethostname()
+PORT = 1600
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
