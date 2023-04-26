@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
-import time
-import socket
+import time, threading, socket
 from struct import pack
 
 PIN = 24
