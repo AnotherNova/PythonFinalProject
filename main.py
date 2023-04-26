@@ -33,7 +33,7 @@ class Camera:
             enhancer.enhance(factor).show(f"Sharpness {factor:f}")
 def main(q):
     global scaling
-    scaling = 10
+    scaling = 15
     cam = Camera()
     # centers mouse
     pyautogui.moveTo((1920/2),(1080/2))
@@ -46,7 +46,9 @@ def main(q):
         faces = cam.face_cascade.detectMultiScale(gray, accuracy, 7)
         mouse_pos = pyautogui.position()
         mouse_vel = [0, 0]
-        for (x, y, w, h) in faces:
+        if len(faces) > 0:
+            largest_face = max(faces, key=lambda f: f[2] * f[3])
+            x, y, w, h = largest_face
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
             #centers to camera
             # calculate target mouse position
