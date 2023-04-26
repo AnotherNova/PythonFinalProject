@@ -5,7 +5,6 @@ from PIL import ImageEnhance
 import dlib
 
 accuracy = 1.04
-scaling = 10
 max_distance = 200
 
 #failsafe bypass
@@ -33,6 +32,8 @@ class Camera:
             factor = i / 4.0
             enhancer.enhance(factor).show(f"Sharpness {factor:f}")
 def main(q):
+    global scaling
+    scaling = 10
     cam = Camera()
     # centers mouse
     pyautogui.moveTo((1920/2),(1080/2))
@@ -52,6 +53,11 @@ def main(q):
             target_pos = (x+w//2)*3, (y+h//2)*1.75
             # calculate distance between current and target mouse position
             dist = np.sqrt((target_pos[0]-mouse_pos[0])**2 + (target_pos[1]-mouse_pos[1])**2)
+            key = cv2.waitKey(1)
+            if key == ord('w'):
+                scaling += 5
+            elif key == ord('s'):
+                scaling -= 5
             if dist > max_distance:
                 # calculate mouse velocity proportional to distance
                 mouse_vel[0] = (target_pos[0]-mouse_pos[0])/dist * scaling
