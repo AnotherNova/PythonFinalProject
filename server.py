@@ -14,4 +14,3 @@ while True:
     clientsocket.send(bytes("Welcome in.","utf-8"))
 
     clientsocket.close()
-
