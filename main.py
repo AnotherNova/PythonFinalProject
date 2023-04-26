@@ -1,6 +1,12 @@
 import cv2
 import numpy as np
 import pyautogui
+from PIL import ImageEnhance 
+import dlib
+
+accuracy = 1.04
+scaling = 10
+max_distance = 200
 
 #failsafe bypass
 pyautogui.FAILSAFE = False
@@ -20,6 +26,12 @@ class Camera:
     def release_camera(self):
         self.cap.release()
         cv2.destroyAllWindows()
+    def enhanceDat(self):
+        self.enhancer = enhancer
+        enhancer = ImageEnhance.Sharpness(main.frame)
+        for i in range(8):
+            factor = i / 4.0
+            enhancer.enhance(factor).show(f"Sharpness {factor:f}")
 def main(q):
     cam = Camera()
     # centers mouse
@@ -30,21 +42,32 @@ def main(q):
         # converts img to grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         # detects faces
-        faces = cam.face_cascade.detectMultiScale(gray, 1.07, 7)
-        cx, cy = 0, 0
+        faces = cam.face_cascade.detectMultiScale(gray, accuracy, 7)
+        mouse_pos = pyautogui.position()
+        mouse_vel = [0, 0]
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
             #centers to camera
-            cx, cy = (x+w//2)*3, (y+h//2)*1.75
-            pyautogui.moveTo(cx,cy)
+            # calculate target mouse position
+            target_pos = (x+w//2)*3, (y+h//2)*1.75
+            # calculate distance between current and target mouse position
+            dist = np.sqrt((target_pos[0]-mouse_pos[0])**2 + (target_pos[1]-mouse_pos[1])**2)
+            if dist > max_distance:
+                # calculate mouse velocity proportional to distance
+                mouse_vel[0] = (target_pos[0]-mouse_pos[0])/dist * scaling
+                mouse_vel[1] = (target_pos[1]-mouse_pos[1])/dist * scaling
+                # update mouse position
+                mouse_pos = (mouse_pos[0]+mouse_vel[0], mouse_pos[1]+mouse_vel[1])
+                # move mouse
+                pyautogui.moveTo(mouse_pos, duration = 0.1)
             roi_gray = gray[y:y+w, x:x+w]
             roi_color = frame[y:y+h, x:x+w]
-            eyes = cam.eye_cascade.detectMultiScale(roi_gray, 1.07, 4)
-            for (ex, ey, ew, eh) in eyes:
-                cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 5)
+            #eyes = cam.eye_cascade.detectMultiScale(roi_gray, accuracy, 4)
+            #for (ex, ey, ew, eh) in eyes:
+            #   cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 5)
 
         # identify thread data
-        q.put((cx, cy))
+        q.put((mouse_pos))
 
         cv2.imshow('CameraWindow', frame)
 
