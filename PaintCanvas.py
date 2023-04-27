@@ -1,24 +1,33 @@
 ###############################################################
 #Description: Simulates a paint canvas
-#Date: 4/20/23
+#Date: 4/27/23
 ###############################################################
 #Created referencing nikhilkumarsingh's paint.py on GitHub
+#May have to click with mouse in the beginning to activate pyautogui function
 from tkinter import *
 from tkinter import colorchooser
-import EyeTrack
+import pyautogui
+import keyboard
 import threading
 import queue
-from sys import exit
+import FaceTrack
+import Rasp_pi_Data
+
+#Failsafe for if the mouse is rendered inaccessible
+pyautogui.FAILSAFE = True
 
 #Create the main GUI (window, bg color, size)
 class Background(Canvas):
     DEFAULT_COLOR = "Black"
-    def __init__(self, master, q):
+    def __init__(self, master, q, p, z, mouse_func):
         super(Background, self).__init__(master)
         self.c = Canvas(self, width = 900, height = 600, bg = "white")
         self.c.pack(side = "top", fill = "both", expand = True)
-        #Define q
+        self.mouse_func = mouse_func
         self.q = q
+        self.p = p
+        self.z = z
+
         #Button for choosing a color
         self.color_button = Button(master, text = "Colors", command = self.choose_color)
         self.color_button.pack(side = "top")
@@ -38,7 +47,7 @@ class Background(Canvas):
         self.old_x = None
         self.old_y = None
         self.color = self.DEFAULT_COLOR
-        #When the user presses the left mouse button and moves across the screen, call the paint function
+        #When the user clicks and drags the mouse, start painting
         self.c.bind("<B1-Motion>", self.paint)
         #When the user releases the button, stop painting
         self.c.bind("<ButtonRelease-1>", self.reset)
@@ -55,9 +64,9 @@ class Background(Canvas):
     def choose_color(self):
         self.color = colorchooser.askcolor(color = self.color)[1]
 
-    #Function for cqreating a line
+    #Function for creating a line
     def paint(self, event):
-        #If something is in the queue
+        #If something is in the q queue
         if q.qsize() > 0:
             #Retrieve and remove it from the queue and process the if statement
             data = q.get()
@@ -70,21 +79,39 @@ class Background(Canvas):
     def reset(self, event):
         self.old_x, self.old_y = None, None
 
+    #Function for using button output to do nothing, click, or drag the mouse
+    def auto_draw(self, z):
+        #If something is in the z queue
+        if z.qsize() > 0:
+            #Retrieve and remove it from the queue and process the if statement
+            data = z.get()
+            if mouse_func == 0:
+                pass
+            elif mouse_func == 1:
+                pyautogui.click(button = "left")
+            elif mouse_func == 2:
+                pyautogui.mouseDown(button = "left")
+
 #Run the code when the file is run as a script and include GUI setup
 if __name__ == "__main__":
     master = Tk()
     master.title("FacePaint")
     message = Label(master, text = "Welcome to FacePaint!")
     message.pack(side = BOTTOM)
-    #Create a new instance of the Queue class from the queue module
+    #Instantiate the queues
     q = queue.Queue()
-    #Identify the target data as cx and xy in EyeTrack
-    background_thr = threading.Thread(target = EyeTrack.main, args = (q,))
-    view = Background(master, q)
+    p = queue.Queue()
+    z = queue.Queue()
+    #Runs the face tracking program in the background
+    face_track_thr = threading.Thread(target = FaceTrack.main, args=(q,))
+    #Continuously runs the method auto_draw to check the value of mouse_func
+    auto_draw_thr = threading.Thread(target = Background.auto_draw, args = (p,))
+    #Continuously receives updated data from the Raspberry pi.
+    rasp_data_thr = threading.Thread(target = Rasp_pi_Data.get_rasp_data, args = (z,))
+    view = Background(master, q, p, z, mouse_func)
+    face_track_thr.start()
+    auto_draw_thr.start()
+    rasp_data_thr.start()
     view.pack(side = "top", fill = "both", expand = True)
-    #EyeTrack.main()
-    #EyeTrack.cv2.destroyAllWindows()
-    #Start the thread
-    background_thr.start()
     master.mainloop()
-    exit()
+
