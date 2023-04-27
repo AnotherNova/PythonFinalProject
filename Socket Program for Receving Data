@@ -1,14 +1,22 @@
+#############################################################
+#Description: Receives data from the Rspi to a computer.
+#Date: 4/21/23
+#############################################################
 import socket
 from struct import unpack
 
-HOST = socket.gethostname()
-PORT = 1600
+#Pass the z queue as a parameter so it can put the data in the queue 
+def get_rasp_data(z):
+    HOST = 
+    PORT =
 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.listen(5)
-s.bind((HOST, PORT))
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.bind((HOST, PORT))
 
-while True:
-    message, address = s.recvfrom(4096)
-    pin_state = unpack("i", message)
-    print("{}".format(pin_state))
+
+    while True:
+        message, address = s.recvfrom(4096)
+        pin_state = unpack("i", message)
+        z.put(pin_state)
+        print("{}".format(pin_state))
+
