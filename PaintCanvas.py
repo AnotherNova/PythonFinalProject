@@ -19,11 +19,10 @@ pyautogui.FAILSAFE = True
 #Create the main GUI (window, bg color, size)
 class Background(Canvas):
     DEFAULT_COLOR = "Black"
-    def __init__(self, master, q, p, z, mouse_func):
+    def __init__(self, master, q, p, z):
         super(Background, self).__init__(master)
         self.c = Canvas(self, width = 900, height = 600, bg = "white")
         self.c.pack(side = "top", fill = "both", expand = True)
-        self.mouse_func = mouse_func
         self.q = q
         self.p = p
         self.z = z
@@ -80,17 +79,18 @@ class Background(Canvas):
         self.old_x, self.old_y = None, None
 
     #Function for using button output to do nothing, click, or drag the mouse
-    def auto_draw(self, z):
-        #If something is in the z queue
-        if z.qsize() > 0:
-            #Retrieve and remove it from the queue and process the if statement
-            data = z.get()
-            if mouse_func == 0:
-                pass
-            elif mouse_func == 1:
-                pyautogui.click(button = "left")
-            elif mouse_func == 2:
-                pyautogui.mouseDown(button = "left")
+    def auto_draw(self):
+        while True:
+            #If something is in the z queue
+            if z.qsize() > 0:
+                #Retrieve and remove it from the queue and process the if statement
+                mouse_func = z.get()[0]
+                if mouse_func == 0:
+                    pass
+                elif mouse_func == 1:
+                    pyautogui.click(button = "left")
+                elif mouse_func == 2:
+                    pyautogui.mouseDown(button = "left")
 
 #Run the code when the file is run as a script and include GUI setup
 if __name__ == "__main__":
@@ -103,15 +103,14 @@ if __name__ == "__main__":
     p = queue.Queue()
     z = queue.Queue()
     #Runs the face tracking program in the background
-    face_track_thr = threading.Thread(target = FaceTrack.main, args=(q,))
+    face_track_thr = threading.Thread(target = FaceTrack.main, args = (q,))
     #Continuously runs the method auto_draw to check the value of mouse_func
     auto_draw_thr = threading.Thread(target = Background.auto_draw, args = (p,))
     #Continuously receives updated data from the Raspberry pi.
     rasp_data_thr = threading.Thread(target = Rasp_pi_Data.get_rasp_data, args = (z,))
-    view = Background(master, q, p, z, mouse_func)
+    view = Background(master, q, p, z)
     face_track_thr.start()
     auto_draw_thr.start()
     rasp_data_thr.start()
     view.pack(side = "top", fill = "both", expand = True)
     master.mainloop()
-
