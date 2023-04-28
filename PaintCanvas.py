@@ -96,6 +96,7 @@ class Background(Canvas):
 if __name__ == "__main__":
     master = Tk()
     master.title("FacePaint")
+    master.state('zoomed')
     message = Label(master, text = "Welcome to FacePaint!")
     message.pack(side = BOTTOM)
     #Instantiate the queues
