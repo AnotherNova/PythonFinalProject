@@ -1,2 +1,2 @@
 # PythonFinalProject
-Final project using OpenCV to track a user's face and control the mouse cursor with it.
+Final project using OpenCV to track a user's face to draw on a canvas
