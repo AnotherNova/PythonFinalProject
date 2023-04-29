@@ -1,8 +1,6 @@
-import cv2
+import cv2, pyautogui
 import numpy as np
-import pyautogui
 from PIL import ImageEnhance 
-import dlib
 
 accuracy = 1.04
 max_distance = 200
