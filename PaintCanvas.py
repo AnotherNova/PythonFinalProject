@@ -86,7 +86,7 @@ class Background(Canvas):
                 #Retrieve and remove it from the queue and process the if statement
                 mouse_func = z.get()[0]
                 if mouse_func == 0:
-                    pass
+                    pyautogui.mouseUp(button = "left")
                 elif mouse_func == 1:
                     pyautogui.click(button = "left")
                 elif mouse_func == 2:
