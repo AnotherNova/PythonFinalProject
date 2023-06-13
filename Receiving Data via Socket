@@ -1,7 +1,3 @@
-#############################################################
-#Description: Receives data from the Rspi to a computer.
-#Date: 4/21/23
-#############################################################
 import socket
 from struct import unpack
 
