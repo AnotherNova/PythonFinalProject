@@ -5,9 +5,9 @@ from PIL import ImageEnhance
 accuracy = 1.04
 max_distance = 200
 
-#failsafe bypass
+# failsafe bypass
 pyautogui.FAILSAFE = False
-#does all the frame setup
+# does all the frame setup
 class Camera:
     def __init__(self):
         self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # directshow api
@@ -23,6 +23,7 @@ class Camera:
     def release_camera(self):
         self.cap.release()
         cv2.destroyAllWindows()
+    # enhancing image quality
     def enhanceDat(self):
         self.enhancer = enhancer
         enhancer = ImageEnhance.Sharpness(main.frame)
@@ -48,7 +49,7 @@ def main(q):
             largest_face = max(faces, key=lambda f: f[2] * f[3])
             x, y, w, h = largest_face
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
-            #centers to camera
+            # centers to camera
             # calculate target mouse position
             target_pos = (x+w//2)*3, (y+h//2)*1.75
             # calculate distance between current and target mouse position
@@ -64,15 +65,12 @@ def main(q):
                 mouse_vel[1] = (target_pos[1]-mouse_pos[1])/dist * scaling
                 # update mouse position
                 mouse_pos = (mouse_pos[0]+mouse_vel[0], mouse_pos[1]+mouse_vel[1])
-                # move mouse
+                # map mouse to face 
                 pyautogui.moveTo(mouse_pos, duration = 0.1)
-            roi_gray = gray[y:y+w, x:x+w]
-            roi_color = frame[y:y+h, x:x+w]
-            #eyes = cam.eye_cascade.detectMultiScale(roi_gray, accuracy, 4)
-            #for (ex, ey, ew, eh) in eyes:
-            #   cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 5)
+            #roi_gray = gray[y:y+w, x:x+w]
+            #roi_color = frame[y:y+h, x:x+w]
 
-        # identify thread data
+        # identify thread data (mouse position)
         q.put((mouse_pos))
 
         cv2.imshow('CameraWindow', frame)
