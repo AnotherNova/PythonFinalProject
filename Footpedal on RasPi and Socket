@@ -2,7 +2,9 @@ import RPi.GPIO as GPIO
 import time, threading, socket
 from struct import pack
 
+#breadboard pin
 PIN = 24
+#host and port for communicating
 HOST = 
 PORT =
 
@@ -12,9 +14,11 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 
+#detect state of the footpedal (button)
 start_time = time.time()
 while True:
     state = GPIO.input(PIN)
+    #duration for distinguishing between held (dragging) and pressing (clicking)
     duration = time.time() - start_time
     if state == GPIO.LOW:
         print("Not P/H")
@@ -28,7 +32,7 @@ while True:
             print("Pressed")
             switch_state = 1
             start_time = time.time()
-        
+    #sending state integer to receiving code on computer     
     message = pack("i", switch_state)
     s.sendto(message, (HOST, PORT))  
     time.sleep(0.1)
