@@ -3,7 +3,6 @@
 #Date: 4/27/23
 ###############################################################
 #Created referencing nikhilkumarsingh's paint.py on GitHub
-#May have to click with mouse in the beginning to activate pyautogui function
 from tkinter import *
 from tkinter import colorchooser
 import pyautogui
